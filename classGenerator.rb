@@ -7,7 +7,7 @@
 #    By: niccheva <niccheva@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/09/29 17:07:44 by niccheva          #+#    #+#              #
-#    Updated: 2015/11/08 21:07:28 by niccheva         ###   ########.fr        #
+#    Updated: 2015/11/09 11:55:27 by niccheva         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -79,10 +79,12 @@ class Array
     sorted.first
   end
 
+=begin
   def longest_word
 #    self.max_by(&:length)
     group_by(&:size).max.last.to_s
   end
+=end
 
 end
 
@@ -116,28 +118,6 @@ def get_vars(visibility)
     end
   end
   ary
-end
-
-def get_var(visibility)
-  hash = Hash.new
-  is_visible = false
-  ARGV.each do |arg|
-    if arg == "-" + visibility
-      is_visible = true
-      next
-    end
-    KEYWORDS.each do |k|
-      is_visible = false if arg == ("-" + k) && k != "-" + visibility
-    end
-    if is_visible
-      arg = arg.split '/'
-      abort USAGE if arg == nil || arg.length != 2
-      type = arg.first
-      name = arg.last
-      hash[type] = name
-    end
-  end
-  hash
 end
 
 def define_number_of_tab(longest, word)
