@@ -7,15 +7,21 @@
 #    By: niccheva <niccheva@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/09/29 17:07:44 by niccheva          #+#    #+#              #
-#    Updated: 2015/11/05 11:08:07 by niccheva         ###   ########.fr        #
+#    Updated: 2015/11/08 21:07:28 by niccheva         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-$LOAD_PATH << '.'
-require 'String+is_comment'
-
 BLANK_COMMENT_LINE = "/*#{" " * 76}*/"
 COMMENT_LINE = "/* #{"*" * 74} */"
+
+def generate_comments(name)
+  comment = "#{COMMENT_LINE}\n"
+  comment += "#{BLANK_COMMENT_LINE}\n"
+  spaces = (76 - name.length)
+  comment += "/*#{" " * (spaces / 2)}#{name}#{" " * (spaces.odd? ? (spaces / 2 + 1) : spaces / 2)}*/\n"
+  comment += "#{BLANK_COMMENT_LINE}\n"
+  comment += "#{COMMENT_LINE}\n"
+end
 
 CONSTRUCTORS_COMMENT = generate_comments "Constructors"
 DESTRUCTORS_COMMENT = generate_comments "Destructors"
@@ -39,26 +45,19 @@ USAGE = "Usage: class_name [-public \"type/param_name\"...]
 NL = "\n"
 TAB = "\t"
 
-KEYWORDS = ["public", "protected", "private", "inherit", "s", "g", "interface", "abstract", "member", "exception"]
-
-def generate_comments(name)
-  comment = "#{COMMENT_LINE}\n"
-  comment += "#{BLANK_COMMENT_LINE}\n"
-  spaces = (76 - name.length)
-  comment += "/*#{" " * (spaces / 2)}#{name}#{" " * (spaces.odd? ? (spaces / 2 + 1) : spaces / 2)}*/\n"
-  comment += "#{BLANK_COMMENT_LINE}\n"
-  comment += "#{COMMENT_LINE}\n"
-end
+KEYWORDS = ["-public", "-protected", "-private", "-inherit", "-s", "-g", "-interface", "-abstract", "-member", "-exception"]
 
 class Var
+
+  attr_reader :type, :name, :is_ref_or_pointer
 
   def initialize(var)
     ary = var.split "/"
     abort USAGE if ary == nil || ary.length != 2
     @type = ary.first
     @name = ary.last
-    @is_ref_or_pointer = @type.includes? "*" || @type.includes? "&"
-    @is_function = @name.includes? "("
+    @is_ref_or_pointer = (@type.include? "*") || (@type.include? "&")
+    @is_function = @name.include? "("
     if @is_ref_or_pointer
       @type.delete! "*", "&"
     end
@@ -72,11 +71,51 @@ end
 
 class Array
 
+  def longest_type
+    sorted = self
+    sorted.sort_by! {|x| x.type.length}
+    sorted.reverse!
+    puts sorted.to_s
+    sorted.first
+  end
+
   def longest_word
 #    self.max_by(&:length)
     group_by(&:size).max.last.to_s
   end
 
+end
+
+def get_all_vars
+  hash = Hash.new
+  hash[:public] = get_vars "-public"
+  hash[:protected] = get_vars "-protected"
+  hash[:private] = get_vars "-private"
+  hash
+end
+
+def hash_to_a(hash)
+  ary = Array.new
+  hash.each do |_, v|
+    ary += v
+  end
+  ary
+end
+
+def get_vars(visibility)
+  ary = Array.new
+  is_visible = false
+  ARGV.each do |arg|
+    if arg == visibility
+      is_visible = true
+      next
+    end
+    is_visible = false if KEYWORDS.include? arg
+    if is_visible
+      ary << Var.new(arg)
+    end
+  end
+  ary
 end
 
 def get_var(visibility)
@@ -105,31 +144,6 @@ def define_number_of_tab(longest, word)
   return 1 if longest == word
   diff = (longest.length / 4) - (word.length / 4)
   longest.length % 4 ? diff : diff + 1
-end
-
-def get_names
-  names = get_var("private").collect do |_, v|
-    v
-  end
-  names += get_var("protected").collect do |_, v|
-    v
-  end
-  names += get_var("public").collect do |_, v|
-    v
-  end
-end
-
-def get_types(name)
-  types = get_var("private").collect do |k, _|
-    k
-  end
-  types += get_var("protected").collect do |k, _|
-    k
-  end
-  types += get_var("public").collect do |k, _|
-    k
-  end
-  types << name
 end
 
 def generate_private_hpp(f, name)
