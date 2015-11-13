@@ -7,7 +7,7 @@
 #    By: niccheva <niccheva@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/09/29 17:07:44 by niccheva          #+#    #+#              #
-#    Updated: 2015/11/13 01:49:55 by niccheva         ###   ########.fr        #
+#    Updated: 2015/11/13 10:26:43 by niccheva         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -253,8 +253,8 @@ end
 def generate_public_hpp(f, name)
   f.puts "public:"
   vars = get_all_vars name
+  longest = hash_to_a(vars).longest_type
   if ARGV.include? "-public"
-    longest = hash_to_a(vars).longest_type
     vars[:public].each do |v|
       f.puts TAB + v.type + (TAB * define_number_of_tab(longest, v.type)) + v.pointer_or_ref + v.name + ";"
     end
