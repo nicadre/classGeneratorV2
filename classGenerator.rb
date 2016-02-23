@@ -7,7 +7,7 @@
 #    By: niccheva <niccheva@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/11/20 15:29:59 by niccheva          #+#    #+#              #
-#    Updated: 2015/11/23 17:46:21 by niccheva         ###   ########.fr        #
+#    Updated: 2016/02/23 16:10:11 by niccheva         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,7 +49,7 @@ USAGE = "Usage: class_name [-public \"type/param_name\"...]
                   [-template]
                   [-namespace \"namespace(s*)\" (*only on c++1z)]
                   [-member \"type/method_name(type param_name...)\"...] (soon)
-                  [-exception name...] (soon)"
+                  [-exception name...]"
 
 KEYWORDS = ["-public", "-protected", "-private", "-inherit", "-s", "-g", "-interface", "-abstract", "-template", "-member", "-namespace", "-exception"]
 
@@ -189,7 +189,7 @@ def generate_operator_overload(f)
   begin
     vars = $private + $protected
     vars.each do |v|
-      f.puts TAB + "this->_" + v.name + " = rhs." + v.name + "();"
+      f.puts TAB + "this->_" + v.name + " = rhs._" + v.name + ";"
     end
     $public.each do |v|
       f.puts TAB + "this->" + v.name + " = rhs." + v.name + ";"
